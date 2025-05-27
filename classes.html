@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수업 - 헬스장</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">헬스장</div>
+            <ul>
+                <li><a href="index.html">홈</a></li>
+                <li><a href="about.html">소개</a></li>
+                <li><a href="classes.html">수업</a></li>
+                <li><a href="trainers.html">트레이너</a></li>
+                <li><a href="pricing.html">가격</a></li>
+                <li><a href="contact.html">문의</a></li>
+                <li><a href="login.html" class="login-btn">로그인</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="classes-page">
+        <section class="classes-hero">
+            <h1>수업 프로그램</h1>
+            <p>다양한 피트니스 프로그램으로 당신의 목표를 달성하세요</p>
+        </section>
+
+        <section class="classes-content">
+            <div class="container">
+                <div class="class-filters">
+                    <button class="filter-btn active" data-filter="all">전체</button>
+                    <button class="filter-btn" data-filter="strength">근력 운동</button>
+                    <button class="filter-btn" data-filter="cardio">유산소</button>
+                    <button class="filter-btn" data-filter="yoga">요가</button>
+                </div>
+
+                <div class="classes-grid" id="classesGrid">
+                    <!-- 수업 카드들이 JavaScript로 동적 생성됩니다 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 헬스장. All rights reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // 수업 데이터 로드 및 표시
+        async function loadClasses() {
+            const { data: classes, error } = await supabase
+                .from('classes')
+                .select('*')
+                .order('name');
+
+            if (error) {
+                console.error('수업 데이터 로드 실패:', error);
+                return;
+            }
+
+            const grid = document.getElementById('classesGrid');
+            grid.innerHTML = '';
+
+            classes.forEach(classItem => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <img src="${classItem.image_url || 'images/default-class.jpg'}" alt="${classItem.name}">
+                    <div class="class-info">
+                        <h3>${classItem.name}</h3>
+                        <p>${classItem.description}</p>
+                        <div class="class-details">
+                            <span>${classItem.duration_minutes}분</span>
+                            <span>${classItem.capacity}명 정원</span>
+                        </div>
+                        <button onclick="bookClass('${classItem.id}')" class="book-btn">예약하기</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 필터 버튼 이벤트 처리
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.filter-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                // 필터링 로직 구현
+            });
+        });
+
+        // 페이지 로드 시 수업 데이터 로드
+        document.addEventListener('DOMContentLoaded', loadClasses);
+    </script>
+</body>
+</html> 
